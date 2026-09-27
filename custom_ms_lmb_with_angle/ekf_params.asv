@@ -1,0 +1,16 @@
+x_estimated = repmat({zeros(4, size(X_truth.veh{1},2))}, 1, 2); % Vehicle State Allocation
+P_estimated = repmat({zeros(4,4,size(X_truth.veh{1},2))}, 1, 2); % Vehicle Covariance Allocation
+
+sampling_time = 0.1; % Sampling Time
+motion.sigma = 0.3; % Motion Standard Deviation
+
+% Generate Measurement noise covariance
+sigma_gnss_1 = 0.2;     R_gnss_1 = sigma_gnss_1^2 * eye(2);
+sigma_gnss_2 = 1;     R_gnss_2 = sigma_gnss_2^2 * eye(2);
+
+
+cov_gnss = [motion.sigma^2 * eye(2), zeros(2); zeros(2,4)];
+sigma_target = 1;   R_target = sigma_target^2 * eye(size(obj_loc,1));
+obj.loc_mu = obj_loc;   % Define empty object vector
+              
+
