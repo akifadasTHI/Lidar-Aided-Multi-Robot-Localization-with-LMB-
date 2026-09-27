@@ -1,0 +1,64 @@
+clc, clear, close all
+
+% set(0,'DefaultTextFontSize',14);
+% set(0,'DefaultAxesFontSize',14);
+% set(0,'DefaultLineLineWidth',3);
+% set(0,'DefaultTextInterpreter','latex')
+tmin = 203; tmax = 314;
+load("results_files\rmse_csp.mat");
+rmse_csp = cell2mat(rmse);
+
+clear rmse rmsee
+load("results_files\rmse_veh2.mat");
+rmse_veh2 = rmse_vv;
+load("results_files\runfile_rtk_bias2_PA_v2_rs.mat")
+rmse(1,:) = sqrt(mean(rmse_ICP(:,tmin:tmax),2));
+rmse_bias_ICP = sqrt(rmse_ICP);
+load("results_files\runfile_rtk_faulty2_v1_2_rs.mat")
+rmse(2,:) = sqrt(mean(rmse_ICP(:,tmin:tmax),2));
+rmse_gnss_ICP = sqrt(rmse_ICP);
+rmse_gnss(1,:) = sqrt((sum((reshape(faultyGps(1,:,:),2,[]) - vehicleStateGT(4*(1-1)+1:4*(1-1)+2,:)).^2)));
+rmse_gnss(2,:) = sqrt((sum((reshape(faultyGps(1,:,:),2,[]) - vehicleStateGT(4*(1-1)+1:4*(1-1)+2,:)).^2)));
+%%
+figure('Units','centimeters','Position',[5 5 20 10],'PaperPositionMode','auto');
+set(gca,'LooseInset', max(get(gca,'TightInset'), 0.001))
+t = tiledlayout(1,2,'TileSpacing','tight','Padding','tight');
+nexttile(t)
+set(gcf,'units','points','position',[10,10,650,400])
+% subplot(121)
+% h = cdfplot(rmse_bias_ICP(1,tmin:tmax)); hold on
+set(gca,'XMinorTick','on')
+set(gca,'Xtick',0:1:5)
+% set(h, 'LineWidth', 3, 'LineStyle','--')
+% h = cdfplot(rmse_gnss_ICP(1,1:1750)); hold on
+% set(h, 'LineWidth', 3, 'LineStyle','--')
+h = cdfplot(rmse_gnss(1,:)); hold on
+set(h, 'LineWidth', 3, 'LineStyle','--')
+h = cdfplot(rmse_csp(tmin:tmax,1)); hold on
+set(h, 'LineWidth', 3, 'LineStyle','--')
+plot([0 2], [0.95 0.95], '--', 'Color', [0 0 0])
+
+lg = legend("ICP-NLOS Compensation", "ICP-Conventional", "Ego-GNSS","CSP", "CEP95", "Location","southeast");
+lg = legend("Ego-GNSS","CSP", "CEP95", "Location","southeast");
+lg.FontSize = 15;
+title("")
+ylabel("ECDF"), xlabel("Horizontal Error [m]")
+grid minor
+
+nexttile(t)
+% subplot(122)
+% h = cdfplot(rmse_bias_ICP(2,1:1750)); hold on,
+% set(gca,'XMinorTick','on')
+% set(gca,'Xtick',0:0.2:6)
+set(h, 'LineWidth', 3, 'LineStyle','--')
+% h = cdfplot(rmse_gnss_ICP(2,1:1750)); hold on
+% set(h, 'LineWidth', 3, 'LineStyle','--')
+h = cdfplot(rmse_veh2); hold on
+set(h, 'LineWidth', 3, 'LineStyle','--')
+h = cdfplot(rmse_csp(tmin:tmax,3)); hold on
+set(h, 'LineWidth', 3, 'LineStyle','--')
+plot([0 6], [0.95 0.95], '--', 'Color', [0 0 0])
+% legend("ICP-Bias-fixed", "ICP-GNSS", "GNSS")
+title(""), %yticklabels({})
+ylabel(""), xlabel("Horizontal Error [m]")
+grid minor
